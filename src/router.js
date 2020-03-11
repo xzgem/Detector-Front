@@ -60,7 +60,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.path === '/login' || to.path === '/register') return next();
+    if (to.path === '/auth/login' || to.path === '/auth/register' || to.path === '/register' || to.path === '/login') return next();
     const tokenStr = window.sessionStorage.getItem('token');
     if (!tokenStr) return next('/login');
     next();
