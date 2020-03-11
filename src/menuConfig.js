@@ -103,6 +103,11 @@ const asideMenuConfig = [
       },
     ],
   },
+  {
+    name: '\u670D\u52A1\u5668\u7BA1\u7406',
+    path: '/MachineManager',
+    icon: 'home',
+  },
 ];
 
 export { headerMenuConfig, asideMenuConfig };

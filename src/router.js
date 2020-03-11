@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import routerConfig from './routerConfig';
+import Login from './pages/Login/Login'
+import Register from "./pages/Register/Register";
 
 /**
  * 将路由配置扁平化
@@ -24,31 +26,46 @@ import routerConfig from './routerConfig';
 const routerMap = [];
 
 const recursiveRouterConfig = (config = []) => {
-  config.forEach((item) => {
-    const route = {
-      path: item.path,
-      component: item.layout,
-      children: [
-        {
-          path: '',
-          component: item.component,
-        },
-      ],
-    };
+    config.forEach((item) => {
+        const route = {
+            path: item.path,
+            component: item.layout,
+            children: [
+                {
+                    path: '',
+                    component: item.component,
+                },
+            ],
+        };
 
-    if (Array.isArray(item.children)) {
-      recursiveRouterConfig(item.children);
-    }
-    routerMap.push(route);
-  });
-
-  return routerMap;
+        if (Array.isArray(item.children)) {
+            recursiveRouterConfig(item.children);
+        }
+        routerMap.push(route);
+    });
+    routerMap.push(
+        { path: '/login', component: Login},
+        { path: '/register', component: Register}
+    );
+    return routerMap;
 };
 
 const routes = recursiveRouterConfig(routerConfig);
 
 Vue.use(Router);
 
-export default new Router({
-  routes,
+const router = new Router({
+    mode: 'history',
+    routes
 });
+
+router.beforeEach((to, from, next) => {
+    if (to.path === '/login' || to.path === '/register') return next();
+    const tokenStr = window.sessionStorage.getItem('token');
+    if (!tokenStr) return next('/login');
+    next();
+});
+
+export default router;
+
+

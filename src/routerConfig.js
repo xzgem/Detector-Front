@@ -5,6 +5,7 @@
 import HeaderAsideLayout from './layouts/HeaderAsideLayout';
 import Dashboard from './pages/Dashboard';
 
+import MachineManager from './pages/MachineManager';
 import NotFound from './pages/NotFound';
 
 const routerConfig = [
@@ -119,6 +120,11 @@ const routerConfig = [
         component: NotFound,
       },
     ],
+  },
+  {
+    path: '/MachineManager',
+    layout: HeaderAsideLayout,
+    component: MachineManager,
   },
   {
     path: '*',
