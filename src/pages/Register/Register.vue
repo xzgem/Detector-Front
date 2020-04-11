@@ -45,7 +45,7 @@
         },
         methods: {
             async register() {
-                const {data: res} = await this.$http.post('/auth/register', this.registerForm);
+                const {data: res} = await this.$http.post('/register', this.registerForm);
                 console.log(res);
                 if (res.code !== 200) return this.$message.error('注册失败');
                 this.$message.success('注册成功');

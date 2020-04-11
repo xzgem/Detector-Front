@@ -44,13 +44,17 @@
             };
         },
         methods: {
-            async login() {
-                const {data: res} = await this.$http.post('/auth/login', this.loginForm);
-                console.log(res);
-                if (res.code !== 200) return this.$message.error('登陆失败');
-                this.$message.success('登陆成功');
-                window.sessionStorage.setItem('token', res.data.token);
-                await this.$router.push('/home');
+             login() {
+                this.$http.post('/login', this.loginForm).then((res) => {
+                    console.log(res);
+                    if (res.data.code !== 200) return this.$message.error('登陆失败');
+                    this.$message.success('登陆成功');
+                    window.localStorage.setItem('token', res.data.data.token);
+                    window.localStorage.setItem('level', res.data.data.level);
+                    window.localStorage.setItem('username', this.loginForm.username);
+                    this.$router.push('/index');
+                    location.reload();
+                });
             },
             register() {
                 this.$router.push('/register');

@@ -6,9 +6,19 @@ import HeaderAsideLayout from './layouts/HeaderAsideLayout';
 import Dashboard from './pages/Dashboard';
 
 import MachineManager from './pages/MachineManager';
+
 import NotFound from './pages/NotFound';
+import ProjectManager from './pages/ProjectManager';
+import SignUpManager from './pages/SignUpManager';
+import Page11 from './pages/Page11';
+import Project from './pages/Project/Project';
 
 const routerConfig = [
+  {
+    path: '/MachineManager',
+    layout: HeaderAsideLayout,
+    component: MachineManager,
+  },
   {
     path: '/',
     layout: HeaderAsideLayout,
@@ -26,23 +36,6 @@ const routerConfig = [
       },
       {
         path: '/dashboard/workplace',
-        layout: HeaderAsideLayout,
-        component: NotFound,
-      },
-    ],
-  },
-  {
-    path: '/table',
-    layout: HeaderAsideLayout,
-    component: NotFound,
-    children: [
-      {
-        path: '/table/basic',
-        layout: HeaderAsideLayout,
-        component: NotFound,
-      },
-      {
-        path: '/table/fixed',
         layout: HeaderAsideLayout,
         component: NotFound,
       },
@@ -122,9 +115,40 @@ const routerConfig = [
     ],
   },
   {
-    path: '/MachineManager',
+    path: '/table',
     layout: HeaderAsideLayout,
-    component: MachineManager,
+    component: NotFound,
+    children: [
+      {
+        path: '/table/basic',
+        layout: HeaderAsideLayout,
+        component: NotFound,
+      },
+      {
+        path: '/table/fixed',
+        layout: HeaderAsideLayout,
+        component: NotFound,
+      },
+    ],
+  },
+  {
+    path: '/SignUpManager',
+    layout: HeaderAsideLayout,
+    component: SignUpManager,
+  },
+  {
+    path: '/ProjectManager',
+    layout: HeaderAsideLayout,
+    component: ProjectManager,
+  },
+  {
+    path: '/Project',
+    layout: HeaderAsideLayout,
+    component: Project,
+  },
+  {
+    path: '/page11',
+    component: Page11,
   },
   {
     path: '*',
