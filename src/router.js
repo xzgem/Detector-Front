@@ -1,27 +1,10 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import routerConfig from './routerConfig';
-import Login from './pages/Login/Login'
+import Login from './pages/Login/Login';
 import Register from "./pages/Register/Register";
-
-/**
- * 将路由配置扁平化
- * @param {Array} config 路由配置
- * @return {Route}
- * @example
- * const routes = [
- *   {
- *     path: '/dashboard/analysis',
- *     component: HeaderAsideLayout,
- *     children: [
- *       {
- *         path: '',
- *         component: Dashboard,
- *       },
- *     ],
- *   },
- * ];
- */
+import UserDetail from "./pages/UserDetail/UserDetail"
+import Home from "./pages/Home/home"
 
 const routerMap = [];
 
@@ -45,7 +28,9 @@ const recursiveRouterConfig = (config = []) => {
     });
     routerMap.push(
         { path: '/login', component: Login},
-        { path: '/register', component: Register}
+        { path: '/register', component: Register},
+        { path: '/user/detail', component: UserDetail},
+        { path: '/home', component: Home},
     );
     return routerMap;
 };
@@ -60,8 +45,9 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.path === '/auth/login' || to.path === '/auth/register' || to.path === '/register' || to.path === '/login') return next();
-    const tokenStr = window.sessionStorage.getItem('token');
+    if (to.path === '/login' || to.path === '/register') return next();
+    const tokenStr = window.localStorage.getItem('token');
+    console.log(tokenStr);
     if (!tokenStr) return next('/login');
     next();
 });
