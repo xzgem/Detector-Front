@@ -1,0 +1,135 @@
+<style>
+    .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+        height: 34px;
+        line-height: 34px;
+        padding: 0 8px;
+    }
+</style>
+<body>
+<div class="layuimini-container layuimini-page-anim">
+    <div class="layuimini-main">
+        <div>
+            <form class="layui-form layui-form-pane" action="">
+                <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn"><i
+                        class="layui-icon"></i>新增
+                </button>
+            </form>
+            <table id="munu-table" class="layui-table" lay-filter="munu-table"></table>
+        </div>
+    </div>
+</div>
+<!-- 操作列 -->
+<script type="text/html" id="auth-state">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="test">测试</a>
+</script>
+<script>
+    layui.use(['table'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var treetable = layui.table;
+        var miniPage = layui.miniPage;
+        var form = layui.form;
+
+        // 渲染表格
+        treetable.render({
+            elem: '#munu-table',
+            url: server_path + contactInfo,
+            width: 600,
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 100,
+            page: true,
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                {field: 'id', minWidth: 10, title: 'id'},
+                {field: 'contact', minWidth: 250, title: '手机号/邮箱'},
+                {field: 'typeStr', minWidth: 100, title: '类型'},
+                {templet: '#auth-state', width: 200, align: 'center', title: '操作'}
+            ]],
+
+            done: function () {
+                layer.closeAll('loading');
+            }
+        });
+
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#munu-table');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#munu-table');
+        });
+
+        //监听工具条
+        table.on('tool(munu-table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    axios({
+                        method: 'delete',
+                        url: server_path + contactInfo + obj.data.id,
+                        headers: {
+                            'Auth': getToken()
+                        }
+                    }).then((res) => {
+                        if (res.data.code === 0) {
+                            obj.del();
+                            layer.close(index);
+                        } else {
+                            alert(res.data.message);
+                        }
+                    })
+                });
+            } else if (layEvent === 'edit') {
+
+                var content = miniPage.getHrefContent('page/contact/edit.html');
+                var openWH = miniPage.getOpenWidthHeight();
+
+                var index = layer.open({
+                    title: '修改预警方式',
+                    type: 1,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: [openWH[0] * 0.5 + 'px', openWH[1] * 0.5 + 'px'],
+                    offset: [openWH[2] * 2 + 'px', openWH[3] * 2.5 + 'px'],
+                    content: content,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            }
+        });
+
+        //监听工具条
+        form.on('submit(data-search-btn)', function (data) {
+            var content = miniPage.getHrefContent('page/contact/add.html');
+            var openWH = miniPage.getOpenWidthHeight();
+
+            var index = layer.open({
+                title: '新增预警方式',
+                type: 1,
+                shade: 0.2,
+                maxmin: true,
+                shadeClose: true,
+                area: [openWH[0] * 0.5 + 'px', openWH[1] * 0.5 + 'px'],
+                offset: [openWH[2] * 2 + 'px', openWH[3] * 2.5 + 'px'],
+                content: content,
+            });
+            $(window).on("resize", function () {
+                layer.full(index);
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

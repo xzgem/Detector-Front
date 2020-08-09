@@ -1,0 +1,217 @@
+<div class="layuimini-container layuimini-page-anim">
+    <div class="layuimini-main">
+
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">IP地址</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="ip" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-count-delete" lay-event="delete"> 删除 </button>
+            </div>
+        </script>
+
+        <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+
+        <script type="text/html" id="currentTableBar">
+            <button class="layui-btn layui-btn-primary layui-btn-xs data-count-edit" lay-event="edit">编辑</button>
+            <button class="layui-btn layui-btn-xs layui-btn-danger data-count-delete" lay-event="delete">删除</button>
+            <button class="layui-btn layui-btn-normal layui-btn-xs data-count-edit" lay-event="edit">具体信息</button>
+            <a href="/#/page/load/index.html" class="layui-btn layui-btn-normal layui-btn-xs" >负载信息</a>
+        </script>
+    </div>
+</div>
+
+<script>
+    layui.use(['form', 'table','miniPage','element'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            miniPage = layui.miniPage;
+
+        table.render({
+            elem: '#currentTableId',
+            url: server_path + machineInfo,
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                {type: "checkbox", width: 50},
+                {field: 'id', width: 80, title: 'ID', sort: true},
+                {field: 'host', width: 120, title: 'Host'},
+                {field: 'ip', width: 150, title: 'IP地址'},
+                {field: 'osName', width: 150, title: '操作系统'},
+                {field: 'updateTime', width: 200, title: '更新时间', sort: true},
+                {field: 'remark', width: 200, title: '备注'},
+                {title: '操作', minWidth: 200, toolbar: '#currentTableBar', align: "center"}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 10,
+            page: true,
+            skin: 'line'
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+
+            let ip = data.field["ip"];
+
+            if (ip === "" || ip === null || ip === undefined)
+                ip = " "
+
+            table.render({
+                elem: '#currentTableId',
+                url: server_path + machineInfo + 'ip/' + ip,
+                toolbar: '#toolbarDemo',
+                defaultToolbar: ['filter', 'exports', 'print', {
+                    title: '提示',
+                    layEvent: 'LAYTABLE_TIPS',
+                    icon: 'layui-icon-tips'
+                }],
+                cols: [[
+                    {type: "checkbox", width: 50},
+                    {field: 'id', width: 80, title: 'ID', sort: true},
+                    {field: 'host', width: 120, title: 'Host'},
+                    {field: 'ip', width: 150, title: 'IP地址'},
+                    {field: 'osName', width: 150, title: '操作系统'},
+                    {field: 'updateTime', width: 200, title: '更新时间', sort: true},
+                    {field: 'remark', width: 200, title: '备注'},
+                    {title: '操作', minWidth: 200, toolbar: '#currentTableBar', align: "center"}
+                ]],
+                limits: [10, 15, 20, 25, 50, 100],
+                limit: 10,
+                page: true,
+                skin: 'line'
+            });
+
+            return false;
+        });
+
+        /**
+         * toolbar事件监听
+         */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'add') {   // 监听添加操作
+                var content = miniPage.getHrefContent('page/table/machineInfoAdd.html');
+                var openWH = miniPage.getOpenWidthHeight();
+
+                var index = layer.open({
+                    title: '添加用户',
+                    type: 1,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: [openWH[0] + 'px', openWH[1] + 'px'],
+                    offset: [openWH[2] + 'px', openWH[3] + 'px'],
+                    content: content,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+            } else if (obj.event === 'delete') {  // 监听删除操作
+                var checkStatus = table.checkStatus('currentTableId')
+                    , data = checkStatus.data;
+
+                let arr = data;
+                let num = []
+                for (let key in arr) {
+                    num.push(arr[key]["id"]);
+                }
+
+                layer.confirm('真的删除这些么', function (index) {
+                    axios({
+                        method: 'delete',
+                        url: server_path + machineInfo,
+                        headers: {
+                            'Auth': getToken()
+                        },
+                        data: {
+                            "delete": num
+                        }
+                    }).then((res) => {
+                        if (res.data.code === 0) {
+                            table.reload('currentTableId', {
+                                page: {
+                                    curr: 1
+                                }
+                            }, 'data');
+                            layer.close(index);
+                        } else {
+                            alert(res.data.message);
+                        }
+                    })
+                });
+
+            }
+        });
+
+        //监听表格复选框选择
+        table.on('checkbox(currentTableFilter)', function (obj) {
+            console.log(obj)
+        });
+
+        table.on('tool(currentTableFilter)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+
+                machineInfo_Index = obj.data.id;
+
+                var content = miniPage.getHrefContent('page/machine/machineInfo/edit.html');
+                var openWH = miniPage.getOpenWidthHeight();
+
+                var index = layer.open({
+                    title: '修改备注',
+                    type: 1,
+                    shade: 0.2,
+                    maxmin:true,
+                    shadeClose: true,
+                    area: [openWH[0] * 0.5 + 'px', openWH[1] * 0.5 + 'px'],
+                    offset: [openWH[2] * 2 + 'px', openWH[3] * 2.5+ 'px'],
+                    content: content,
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+
+                });
+                return false;
+            } else if (obj.event === 'delete') {
+                layer.confirm('真的删除行么', function (index) {
+                    axios({
+                        method: 'delete',
+                        url: server_path + machineInfo + obj.data.id,
+                        headers: {
+                            'Auth': getToken()
+                        }
+                    }).then((res) => {
+                        if (res.data.code === 0) {
+                            obj.del();
+                            layer.close(index);
+                        } else {
+                            alert(res.data.message);
+                        }
+                    })
+                });
+            }
+        });
+
+    });
+</script>

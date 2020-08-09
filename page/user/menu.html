@@ -1,0 +1,82 @@
+<style>
+    .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {height:34px;line-height:34px;padding:0 8px;}
+</style>
+<body>
+<div class="layuimini-container layuimini-page-anim">
+    <div class="layuimini-main">
+        <div>
+            <button class="layui-btn" id="btn-expand">全部展开</button>
+            <button class="layui-btn layui-btn-normal" id="btn-fold">全部折叠</button>
+            <table id="munu-table" class="layui-table" lay-filter="munu-table"></table>
+        </div>
+    </div>
+</div>
+<!-- 操作列 -->
+<script type="text/html" id="auth-state">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script>
+    layui.use(['table', 'treetable'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var treetable = layui.table;
+
+        // 渲染表格
+        layer.load(2);
+        treetable.render({
+            treeColIndex: 1,
+            treeSpid: -1,
+            elem: '#munu-table',
+            url: server_path + contactInfo,
+            width: 600,
+            page: false,
+            cols: [[
+                {field: 'id', minWidth: 10, title: 'id'},
+                {field: 'contact', minWidth: 250, title: '手机号/邮箱'},
+                {field: 'typeStr', minWidth: 100, title: '类型'},
+                {templet: '#auth-state', width: 120, align: 'center', title: '操作'}
+            ]],
+            done: function () {
+                layer.closeAll('loading');
+            }
+        });
+
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#munu-table');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#munu-table');
+        });
+
+        //监听工具条
+        table.on('tool(munu-table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    axios({
+                        method: 'delete',
+                        url: server_path + contactInfo + obj.data.id,
+                        headers: {
+                            'Auth': getToken()
+                        }
+                    }).then((res) => {
+                        if (res.data.code === 0) {
+                            obj.del();
+                            layer.close(index);
+                        } else {
+                            alert(res.data.message);
+                        }
+                    })
+                });
+            } else if (layEvent === 'edit') {
+
+            }
+        });
+    });
+</script>
+</body>
+</html>
